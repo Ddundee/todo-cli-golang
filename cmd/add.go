@@ -1,39 +1,52 @@
-/*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
-*/
 package cmd
 
 import (
+	"encoding/csv"
 	"fmt"
-
 	"github.com/spf13/cobra"
+	"os"
+	"time"
 )
 
-// addCmd represents the add command
-var addCmd = &cobra.Command{
-	Use:   "add",
-	Short: "Adds ",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+var name string
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("add called")
-	},
+func AddCmd(cmd *cobra.Command, args []string) {
+	if len(args) == 0 && name == "" {
+		panic("No args found")
+	}
+	if name == "" {
+		name = args[0]
+	}
+
+	file, err := os.Open("data/list.csv")
+	if err != nil {
+		panic(err)
+	}
+	reader := csv.NewReader(file)
+	rows, _ := reader.ReadAll()
+
+	file, err = os.OpenFile("data/list.csv", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		panic(err)
+	}
+
+	writer := csv.NewWriter(file)
+
+	row := []string{fmt.Sprint(len(rows)), name, time.Now().Format(time.RFC3339), "pending"}
+	writer.Write(row)
+	fmt.Printf("Added \"%s\" to todo", name)
+	writer.Flush()
+	file.Close()
+}
+
+var addCmd = &cobra.Command{
+	Use:   "add [name of item]",
+	Short: "Adds a new todo item",
+	Args:  cobra.MaximumNArgs(1),
+	Run:   AddCmd,
 }
 
 func init() {
+	addCmd.Flags().StringVarP(&name, "name", "c", "", "Name of the todo")
 	rootCmd.AddCommand(addCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// addCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// addCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

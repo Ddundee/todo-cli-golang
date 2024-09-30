@@ -9,7 +9,7 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "todo",
 	Short: "todo is the way to create todo-lists",
-	Run:   ListDisplay,
+	Run:   ListCmd,
 }
 
 func Execute() {
