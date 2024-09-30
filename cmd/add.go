@@ -12,7 +12,8 @@ var name string
 
 func AddCmd(cmd *cobra.Command, args []string) {
 	if len(args) == 0 && name == "" {
-		panic("No args found")
+		fmt.Println("REQUIRED FLAG: add [name] or --name\tAdds a new todo item")
+		return
 	}
 	if name == "" {
 		name = args[0]
@@ -40,13 +41,13 @@ func AddCmd(cmd *cobra.Command, args []string) {
 }
 
 var addCmd = &cobra.Command{
-	Use:   "add [name of item]",
+	Use:   "add [name] or --name",
 	Short: "Adds a new todo item",
 	Args:  cobra.MaximumNArgs(1),
 	Run:   AddCmd,
 }
 
 func init() {
-	addCmd.Flags().StringVarP(&name, "name", "c", "", "Name of the todo")
+	addCmd.Flags().StringVarP(&name, "name", "n", "", "Name of the todo")
 	rootCmd.AddCommand(addCmd)
 }
